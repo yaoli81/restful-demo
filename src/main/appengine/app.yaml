@@ -1,0 +1,13 @@
+# 服務名稱
+service: restful-demo
+# 使用 Java 11
+runtime: java11
+
+# F2 的 instance（記憶體最高 512MB）
+instance_class: F2
+
+# 自動縮放 instance 數量的設置
+automatic_scaling:
+  max_instances: 1 # 最大 instance 數
+  min_instances: 0 # 最小 instance 數。如果設置為 0，則 instance 數在不使用時將為 0。
+  max_concurrent_requests: 80 # 允許的並發請求數（可以指定最大值為 80，預設 10）

@@ -1,0 +1,75 @@
+import java.text.SimpleDateFormat
+
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'com.google.cloud.tools:appengine-gradle-plugin:2.4.2'
+    }
+}
+
+plugins {
+    id 'org.springframework.boot' version '2.6.7'
+    id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+    id 'java'
+}
+
+apply plugin: 'com.google.cloud.tools.appengine'
+group = 'khc.yao'
+sourceCompatibility = '11'
+targetCompatibility = '11'
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+configurations.all {
+    // spring boot 預設 log 紀錄使用 logback，調整成使用 log4j2，這邊先拿掉預設的 logback
+    exclude group:'org.springframework.boot', module: 'spring-boot-starter-logging'
+}
+
+dependencies {
+    implementation 'com.google.appengine:appengine-api-1.0-sdk:2.0.4'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-freemarker'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    implementation 'org.springframework.boot:spring-boot-starter-log4j2'
+    implementation 'commons-validator:commons-validator:1.7'
+    implementation 'org.springdoc:springdoc-openapi-ui:1.6.8'
+    compileOnly 'org.projectlombok:lombok'
+    runtimeOnly 'com.h2database:h2'
+    annotationProcessor 'org.projectlombok:lombok'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}
+
+def getDateVersion() {
+    def time = new Date()
+    def dateFormat = new SimpleDateFormat("yyyyMMddHHmm")
+    return dateFormat.format(time)
+}
+
+appengine {
+    deploy {
+        version = getDateVersion()
+        projectId = 'gcp-various-demo'
+        // 流量是否直接導向部署的版本
+        promote = false
+        // 停止先前版本
+        stopPreviousVersion = false
+    }
+    stage {
+        artifact = 'build/libs/restful-demo.jar'
+    }
+}
